@@ -180,6 +180,61 @@ CREATE UNIQUE INDEX ON products.product_images (
 ;
 
 
+CREATE TABLE products.product_prices
+    (
+        product_id      util.BIGID NOT NULL
+                        REFERENCES products.products_core ( product_id )
+                            MATCH FULL
+                            ON DELETE CASCADE
+                            ON UPDATE CASCADE,
+        
+        added           TIMESTAMP WITH TIME ZONE NOT NULL,
+        added_by        util.BIGID NOT NULL
+                        REFERENCES users.user_core ( user_id )
+                            MATCH FULL
+                            ON DELETE CASCADE
+                            ON UPDATE CASCADE,
+        added_from      INET NOT NULL,
+        
+        removed         TIMESTAMP WITH TIME ZONE NULL,
+        removed_by      util.BIGID NULL
+                        REFERENCES users.user_core ( user_id )
+                            MATCH FULL
+                            ON DELETE CASCADE
+                            ON UPDATE CASCADE,
+        removed_from    INET NULL,
+        removal_reason  TEXT NULL,
+        
+        price           util.MONEY NOT NULL
+                        CHECK (
+                            ( price ).amount >= 0
+                            AND ( price ).denomination IN (
+                                'USD',
+                                'CAD',
+                                'GBP'
+                            )
+                        ),
+        -- Use from- and to-timestamps as a product may not always have a price
+        -- (e.g. if it is not offered for sale)
+        price_from      TIMESTAMP WITH TIME ZONE NOT NULL,
+        price_to        TIMESTAMP WITH TIME ZONE NOT NULL,
+        
+        CONSTRAINT "All or no removal information must be given"
+            CHECK (
+                ( removed IS NULL ) = ( removed_by IS NULL )
+                AND ( removed IS NULL ) = ( removed_from IS NULL )
+                AND ( removed IS NULL ) = ( removal_reason IS NULL )
+            ),
+        CONSTRAINT "price_from must come before price_to"
+            CHECK ( price_from < price_to ),
+        CONSTRAINT "A product may only have one price at a time"
+            EXCLUDE USING GIST (
+                TSTZRANGE( price_from, price_to ) WITH &&
+            )
+    )
+;
+
+
 -- VIEWS -----------------------------------------------------------------------
 
 

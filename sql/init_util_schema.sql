@@ -72,3 +72,14 @@ CREATE DOMAIN util.raw_sha256 AS BYTEA
 CREATE DOMAIN util.raw_sha512 AS BYTEA
     CHECK ( OCTET_LENGTH( VALUE ) = 64 )
 ;
+
+
+-- MONEY -----------------------------------------------------------------------
+
+
+CREATE TYPE util.MONEY AS
+    (
+        amount              NUMERIC,
+        denomination        TEXT
+    )
+;
