@@ -41,24 +41,6 @@ CREATE TABLE designs.designs
 ;
 
 
-CREATE TABLE designs.design_deletions
-    (
-        design_id       util.BIGID NOT NULL
-                        REFERENCES designs.designs ( design_id )
-                            MATCH FULL
-                            ON DELETE CASCADE
-                            ON UPDATE CASCADE,
-        deleted         TIMESTAMP WITH TIME ZONE NOT NULL,
-        deleted_by      util.BIGID NOT NULL
-                        REFERENCES users.user_core ( user_id )
-                            MATCH FULL
-                            ON DELETE CASCADE
-                            ON UPDATE CASCADE,
-        deleted_from    INET NOT NULL
-    )
-;
-
-
 CREATE TABLE designs.design_descriptions
     (
         design_id       util.BIGID NOT NULL
