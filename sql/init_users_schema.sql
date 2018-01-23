@@ -12,7 +12,7 @@ CREATE SCHEMA users
 CREATE TYPE users._password_type_t AS
     ENUM(
         'invalid',
-        'bcrypt'
+        'scrypt'
     )
 ;
 
