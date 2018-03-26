@@ -83,3 +83,12 @@ CREATE TYPE util.MONEY AS
         denomination        TEXT
     )
 ;
+
+
+-- MACHINE-READABLE STRINGS ----------------------------------------------------
+
+
+CREATE DOMAIN util.machine_name AS TEXT
+    CONSTRAINT "Machine names must be lowercase alphanumeric and underscores"
+        CHECK ( VALUE ~ '^[a-z0-9_]+$' )
+;
