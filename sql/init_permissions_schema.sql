@@ -20,18 +20,45 @@ CREATE TABLE permissions.permissions
 ;
 
 
-CREATE TABLE permissions.user_permissions
+CREATE TABLE permissions.roles
     (
-        user_id         util.BIGID NOT NULL
-                        REFERENCES users.user_core ( user_id ) MATCH FULL
+        role_id         util.BIGID PRIMARY KEY DEFAULT util.next_nonseq_id(
+                            'permissions.roles',
+                            'role_id'
+                        ),
+        role_name       TEXT UNIQUE NOT NULL
+    )
+;
+
+
+CREATE TABLE permissions.role_permissions
+    (
+        role_id         util.BIGID NOT NULL
+                        REFERENCES permissions.roles ( role_id ) MATCH FULL
                             ON DELETE CASCADE
                             ON UPDATE CASCADE,
-        permission      util.BIGID NOT NULL
+        permission_id   util.BIGID NOT NULL
                         REFERENCES permissions.permissions ( permission_id )
                             MATCH FULL
                             ON DELETE CASCADE
                             ON UPDATE CASCADE,
         
-        UNIQUE ( user_id, permission )
+        UNIQUE ( role_id, permission_id )
+    )
+;
+
+
+CREATE TABLE permissions.user_roles
+    (
+        user_id         util.BIGID NOT NULL
+                        REFERENCES users.user_core ( user_id ) MATCH FULL
+                            ON DELETE CASCADE
+                            ON UPDATE CASCADE,
+        role_id         util.BIGID NOT NULL
+                        REFERENCES permissions.roles ( role_id ) MATCH FULL
+                            ON DELETE CASCADE
+                            ON UPDATE CASCADE,
+        
+        UNIQUE ( user_id, role_id )
     )
 ;
