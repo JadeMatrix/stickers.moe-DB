@@ -62,3 +62,20 @@ CREATE TABLE permissions.user_roles
         UNIQUE ( user_id, role_id )
     )
 ;
+
+
+-- VIEWS -----------------------------------------------------------------------
+
+
+CREATE VIEW permissions.user_permissions AS
+    SELECT DISTINCT ON ( permission_id )
+        user_id,
+        p.permission_id AS permission_id,
+        p.permission    AS permission
+    FROM
+        permissions.user_roles AS ur
+        JOIN permissions.role_permissions AS rp
+            ON ur.role_id = rp.role_id
+        JOIN permissions.permissions AS p
+            ON rp.permission_id = p.permission_id
+;
