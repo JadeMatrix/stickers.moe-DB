@@ -81,6 +81,10 @@ CREATE TABLE users.user_revisions
         display_name    TEXT NOT NULL,
         real_name       TEXT NULL,
         avatar_hash     util.raw_sha256 NULL,
+        user_role_id    util.BIGID NOT NULL
+                        REFERENCES permissions.roles ( role_id ) MATCH FULL
+                            ON DELETE CASCADE
+                            ON UPDATE CASCADE,
         -- ...
         
         UNIQUE ( user_id, revised )
@@ -183,7 +187,8 @@ CREATE VIEW users.users AS
                 MAX( revised ) AS revised,
                 FIRST( display_name ORDER BY revised DESC ) AS display_name,
                 FIRST( real_name    ORDER BY revised DESC ) AS real_name,
-                FIRST( avatar_hash  ORDER BY revised DESC ) AS avatar_hash
+                FIRST( avatar_hash  ORDER BY revised DESC ) AS avatar_hash,
+                FIRST( user_role_id ORDER BY revised DESC ) AS user_role_id
             FROM users.user_revisions
             GROUP BY user_id
         ),
@@ -204,6 +209,7 @@ CREATE VIEW users.users AS
         ur.display_name,
         ur.real_name,
         ur.avatar_hash,
+        ur.user_role_id,
         
         ue.email
         
