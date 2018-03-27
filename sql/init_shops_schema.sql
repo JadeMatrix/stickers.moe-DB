@@ -94,10 +94,10 @@ CREATE VIEW shops.shops AS
         MIN( sr.revised ) AS created,
         MAX( sr.revised ) AS revised,
         FIRST( sr.shop_name ORDER BY sr.revised DESC ) AS shop_name,
-        FIRST( sr.shop_url ORDER BY sr.revised DESC ) AS shop_url,
-        FIRST( sr.founded ORDER BY sr.revised DESC ) AS founded,
-        FIRST( sr.closed ORDER BY sr.revised DESC ) AS closed,
-        FIRST( sr.owner_id ORDER BY sr.revised DESC ) AS owner_id
+        FIRST( sr.shop_url  ORDER BY sr.revised DESC ) AS shop_url,
+        FIRST( sr.founded   ORDER BY sr.revised DESC ) AS founded,
+        FIRST( sr.closed    ORDER BY sr.revised DESC ) AS closed,
+        FIRST( sr.owner_id  ORDER BY sr.revised DESC ) AS owner_id
     FROM
         shops.shop_revisions AS sr
         LEFT JOIN shops.shop_deletions AS sd

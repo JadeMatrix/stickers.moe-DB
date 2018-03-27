@@ -182,8 +182,8 @@ CREATE VIEW users.users AS
                 MIN( revised ) AS created,
                 MAX( revised ) AS revised,
                 FIRST( display_name ORDER BY revised DESC ) AS display_name,
-                FIRST( real_name ORDER BY revised DESC ) AS real_name,
-                FIRST( avatar_hash ORDER BY revised DESC ) AS avatar_hash
+                FIRST( real_name    ORDER BY revised DESC ) AS real_name,
+                FIRST( avatar_hash  ORDER BY revised DESC ) AS avatar_hash
             FROM users.user_revisions
             GROUP BY user_id
         ),
