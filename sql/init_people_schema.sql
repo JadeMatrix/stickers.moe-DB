@@ -92,11 +92,11 @@ CREATE VIEW people.people AS
         MAX( pr.revised ) AS revised,
         FIRST( pr.person_name ORDER BY pr.revised DESC ) AS person_name,
         FIRST( pr.person_user ORDER BY pr.revised DESC ) AS person_user,
-        FIRST( pr.about ORDER BY pr.revised DESC ) AS about
+        FIRST( pr.about ORDER BY pr.revised DESC ) AS about,
+        FIRST( pd.person_id ORDER BY pr.revised DESC ) IS NOT NULL AS deleted
     FROM
         people.person_revisions AS pr
         LEFT JOIN people.person_deletions AS pd
             ON pd.person_id = pr.person_id
-    WHERE pd.person_id IS NULL
     GROUP BY pr.person_id
 ;

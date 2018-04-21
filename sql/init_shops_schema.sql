@@ -97,11 +97,11 @@ CREATE VIEW shops.shops AS
         FIRST( sr.shop_url  ORDER BY sr.revised DESC ) AS shop_url,
         FIRST( sr.founded   ORDER BY sr.revised DESC ) AS founded,
         FIRST( sr.closed    ORDER BY sr.revised DESC ) AS closed,
-        FIRST( sr.owner_id  ORDER BY sr.revised DESC ) AS owner_id
+        FIRST( sr.owner_id  ORDER BY sr.revised DESC ) AS owner_id,
+        FIRST( sd.shop_id   ORDER BY sr.revised DESC ) IS NOT NULL AS deleted
     FROM
         shops.shop_revisions AS sr
         LEFT JOIN shops.shop_deletions AS sd
             ON sd.shop_id = sr.shop_id
-    WHERE sd.shop_id IS NULL
     GROUP BY sr.shop_id
 ;

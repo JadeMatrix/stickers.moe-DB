@@ -211,7 +211,9 @@ CREATE VIEW users.users AS
         ur.avatar_hash,
         ur.user_role_id,
         
-        ue.email
+        ue.email,
+        
+        ud.user_id IS NOT NULL AS deleted
         
     FROM
         users.user_core AS uc
@@ -221,5 +223,4 @@ CREATE VIEW users.users AS
             ON ue.user_id = uc.user_id
         LEFT JOIN users.user_deletions AS ud
             ON ud.user_id = uc.user_id
-    WHERE ud.user_id IS NULL
 ;

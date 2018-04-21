@@ -244,11 +244,11 @@ CREATE VIEW products.products AS
         MIN( pr.revised ) AS created,
         MAX( pr.revised ) AS revised,
         FIRST( pr.shop_id ORDER BY pr.revised DESC ) AS shop_id,
-        FIRST( pr.description ORDER BY pr.revised DESC ) AS description
+        FIRST( pr.description ORDER BY pr.revised DESC ) AS description,
+        FIRST( pd.product_id ORDER BY pr.revised DESC ) IS NOT NULL AS deleted
     FROM
         products.product_revisions AS pr
         LEFT JOIN products.product_deletions AS pd
             ON pd.product_id = pr.product_id
-    WHERE pd.product_id IS NULL
     GROUP BY pr.product_id
 ;
