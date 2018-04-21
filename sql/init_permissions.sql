@@ -6,20 +6,20 @@ VALUES
     ( 'can_log_in'            ),
     
     ( 'create_user'           ),
-    ( 'edit_user'             ),
+    ( 'edit_any_user'         ),
     ( 'edit_own_user'         ),
-    ( 'delete_user'           ),
+    ( 'delete_any_user'       ),
     ( 'delete_own_user'       ),
-    ( 'see_any_user'          ),
     
-    ( 'can_edit_public_pages' )
+    ( 'edit_public_pages' )
 ;
 
 
 INSERT INTO permissions.roles ( role_name )
 VALUES
-    ( 'admin' ),
-    ( 'user'  )
+    ( 'admin'  ),
+    ( 'user'   ),
+    ( 'banned' )
 ;
 
 
