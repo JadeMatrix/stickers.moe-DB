@@ -59,7 +59,8 @@ CREATE TABLE users.user_core
                         ),
         _a_revision     TIMESTAMP WITH TIME ZONE NOT NULL,
         -- _an_email       INTEGER NOT NULL,
-        _email_current  BOOLEAN NOT NULL,
+        _email_current  BOOLEAN NOT NULL -- possibly: check email current OR signup email?
+                        CHECK( _email_current ),
         password        users.password NOT NULL
     )
 ;
