@@ -171,6 +171,24 @@ CREATE UNIQUE INDEX ON designs.design_images (
 ;
 
 
+CREATE TABLE designs.related_designs
+    (
+        design_id_left  util.BIGID NOT NULL
+                        REFERENCES designs.designs_core ( design_id ) MATCH FULL
+                            ON DELETE CASCADE
+                            ON UPDATE CASCADE,
+        design_id_right util.BIGID NOT NULL
+                        REFERENCES designs.designs_core ( design_id ) MATCH FULL
+                            ON DELETE CASCADE
+                            ON UPDATE CASCADE,
+        
+        UNIQUE ( design_id_left, design_id_right ),
+        CONSTRAINT "Left related desing ID must be smaller than right"
+            CHECK ( design_id_left < design_id_right )
+    )
+;
+
+
 -- VIEWS -----------------------------------------------------------------------
 
 
@@ -189,3 +207,14 @@ CREATE VIEW designs.designs AS
 ;
 
 
+CREATE VIEW designs.designs_related_to AS
+    SELECT
+        design_id_left  AS design_id,
+        design_id_right AS related_design_id
+    FROM designs.related_designs
+    UNION
+        SELECT
+            design_id_right AS design_id,
+            design_id_left  AS related_design_id
+        FROM designs.related_designs
+;
