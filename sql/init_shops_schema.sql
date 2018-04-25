@@ -66,7 +66,7 @@ REFERENCES shops.shop_revisions (
 
 CREATE TABLE shops.shop_deletions
     (
-        shop_id         util.BIGID NOT NULL
+        shop_id         util.BIGID PRIMARY KEY
                         REFERENCES shops.shops_core ( shop_id ) MATCH FULL
                             ON DELETE CASCADE
                             ON UPDATE CASCADE,

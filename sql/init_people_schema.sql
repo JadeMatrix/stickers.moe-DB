@@ -50,7 +50,7 @@ CREATE TABLE people.person_revisions
 ;
 
 
--- Back-reference from shops core to revisions
+-- Back-reference from people core to revisions
 ALTER TABLE people.people_core ADD FOREIGN KEY (
     person_id,
     _a_revision
@@ -68,7 +68,7 @@ REFERENCES people.person_revisions (
 
 CREATE TABLE people.person_deletions
     (
-        person_id       util.BIGID NOT NULL
+        person_id       util.BIGID PRIMARY KEY
                         REFERENCES people.people_core ( person_id ) MATCH FULL
                             ON DELETE CASCADE
                             ON UPDATE CASCADE,

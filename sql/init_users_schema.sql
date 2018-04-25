@@ -162,7 +162,7 @@ REFERENCES users.user_emails (
 
 CREATE TABLE users.user_deletions
     (
-        user_id         util.BIGID NOT NULL
+        user_id         util.BIGID PRIMARY KEY
                         REFERENCES users.user_core ( user_id ) MATCH FULL
                             ON DELETE CASCADE
                             ON UPDATE CASCADE,

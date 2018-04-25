@@ -47,7 +47,7 @@ CREATE TABLE products.product_revisions
 ;
 
 
--- Back-reference from shops core to revisions
+-- Back-reference from products core to revisions
 ALTER TABLE products.products_core ADD FOREIGN KEY (
     product_id,
     _a_revision
@@ -65,7 +65,7 @@ REFERENCES products.product_revisions (
 
 CREATE TABLE products.product_deletions
     (
-        product_id      util.BIGID NOT NULL
+        product_id      util.BIGID PRIMARY KEY
                         REFERENCES products.products_core ( product_id )
                             MATCH FULL
                             ON DELETE CASCADE
