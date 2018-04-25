@@ -182,10 +182,16 @@ CREATE TABLE designs.related_designs
                             ON DELETE CASCADE
                             ON UPDATE CASCADE,
         
-        UNIQUE ( design_id_left, design_id_right ),
-        CONSTRAINT "Left related desing ID must be smaller than right"
-            CHECK ( design_id_left < design_id_right )
+        CONSTRAINT "Designs cannot be related to themselves"
+            CHECK ( design_id_left != design_id_right )
     )
+;
+
+
+CREATE UNIQUE INDEX ON designs.related_designs (
+    LEAST   ( design_id_left, design_id_right ),
+    GREATEST( design_id_left, design_id_right )
+)
 ;
 
 
@@ -212,7 +218,7 @@ CREATE VIEW designs.designs_related_to AS
         design_id_left  AS design_id,
         design_id_right AS related_design_id
     FROM designs.related_designs
-    UNION
+    UNION ALL
         SELECT
             design_id_right AS design_id,
             design_id_left  AS related_design_id
