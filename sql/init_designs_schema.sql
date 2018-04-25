@@ -9,49 +9,26 @@ CREATE SCHEMA designs
 -- TABLES ----------------------------------------------------------------------
 
 
-CREATE TABLE designs.designs
+CREATE TABLE designs.designs_core
     (
         design_id       util.BIGID PRIMARY KEY DEFAULT util.next_nonseq_id(
-                            'designs.designs',
+                            'designs.designs_core',
                             'design_id'
                         ),
-        
-        created         TIMESTAMP WITH TIME ZONE NOT NULL,
-        created_by      util.BIGID NOT NULL
-                        REFERENCES users.user_core ( user_id )
-                            MATCH FULL
-                            ON DELETE CASCADE
-                            ON UPDATE CASCADE,
-        created_from    INET NOT NULL,
-        
-        deleted         TIMESTAMP WITH TIME ZONE NULL,
-        deleted_by      util.BIGID NULL
-                        REFERENCES users.user_core ( user_id )
-                            MATCH FULL
-                            ON DELETE CASCADE
-                            ON UPDATE CASCADE,
-        deleted_from    INET NULL,
-        
-        CONSTRAINT "All or no removal information must be given"
-            CHECK (
-                ( deleted IS NULL ) = ( deleted_by IS NULL )
-                AND ( deleted IS NULL ) = ( deleted_from IS NULL )
-            )
+        _a_revision     TIMESTAMP WITH TIME ZONE NOT NULL
     )
 ;
 
 
-CREATE TABLE designs.design_descriptions
+CREATE TABLE designs.design_revisions
     (
         design_id       util.BIGID NOT NULL
-                        REFERENCES designs.designs ( design_id )
-                            MATCH FULL
+                        REFERENCES designs.designs_core ( design_id ) MATCH FULL
                             ON DELETE CASCADE
                             ON UPDATE CASCADE,
         revised         TIMESTAMP WITH TIME ZONE NOT NULL,
         revised_by      util.BIGID NOT NULL
-                        REFERENCES users.user_core ( user_id )
-                            MATCH FULL
+                        REFERENCES users.user_core ( user_id ) MATCH FULL
                             ON DELETE CASCADE
                             ON UPDATE CASCADE,
         revised_from    INET NOT NULL,
@@ -63,10 +40,42 @@ CREATE TABLE designs.design_descriptions
 ;
 
 
+-- Back-reference from designs core to revisions
+ALTER TABLE designs.designs_core ADD FOREIGN KEY (
+    design_id,
+    _a_revision
+)
+REFERENCES designs.design_revisions (
+    design_id,
+    revised
+)
+    MATCH FULL
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    DEFERRABLE INITIALLY DEFERRED
+;
+
+
+CREATE TABLE designs.design_deletions
+    (
+        design_id       util.BIGID PRIMARY KEY
+                        REFERENCES designs.designs_core ( design_id ) MATCH FULL
+                            ON DELETE CASCADE
+                            ON UPDATE CASCADE,
+        deleted         TIMESTAMP WITH TIME ZONE NOT NULL,
+        deleted_by      util.BIGID NOT NULL
+                        REFERENCES users.user_core ( user_id ) MATCH FULL
+                            ON DELETE CASCADE
+                            ON UPDATE CASCADE,
+        deleted_from    INET NOT NULL
+    )
+;
+
+
 CREATE TABLE designs.design_contributors
     (
         design_id       util.BIGID NOT NULL
-                        REFERENCES designs.designs ( design_id )
+                        REFERENCES designs.designs_core ( design_id )
                             MATCH FULL
                             ON DELETE CASCADE
                             ON UPDATE CASCADE,
@@ -115,7 +124,7 @@ CREATE UNIQUE INDEX ON designs.design_contributors (
 CREATE TABLE designs.design_images
     (
         design_id       util.BIGID NOT NULL
-                        REFERENCES designs.designs ( design_id )
+                        REFERENCES designs.designs_core ( design_id )
                             MATCH FULL
                             ON DELETE CASCADE
                             ON UPDATE CASCADE,
@@ -160,3 +169,9 @@ CREATE UNIQUE INDEX ON designs.design_images (
 )
     WHERE removed IS NULL
 ;
+
+
+-- VIEWS -----------------------------------------------------------------------
+
+
+
