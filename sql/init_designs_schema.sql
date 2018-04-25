@@ -174,4 +174,18 @@ CREATE UNIQUE INDEX ON designs.design_images (
 -- VIEWS -----------------------------------------------------------------------
 
 
+CREATE VIEW designs.designs AS
+    SELECT
+        dr.design_id,
+        MIN( dr.revised ) AS created,
+        MAX( dr.revised ) AS revised,
+        FIRST( dr.description ORDER BY dr.revised DESC ) AS description,
+        FIRST( dd.design_id   ORDER BY dr.revised DESC ) IS NOT NULL AS deleted
+    FROM
+        designs.design_revisions AS dr
+        LEFT JOIN designs.design_deletions AS dd
+            ON dd.design_id = dr.design_id
+    GROUP BY dr.design_id
+;
+
 
