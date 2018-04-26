@@ -48,8 +48,7 @@ ALTER TABLE designs.designs_core ADD FOREIGN KEY (
 REFERENCES designs.design_revisions (
     design_id,
     revised
-)
-    MATCH FULL
+) MATCH FULL
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     DEFERRABLE INITIALLY DEFERRED
@@ -72,48 +71,43 @@ CREATE TABLE designs.design_deletions
 ;
 
 
-CREATE TABLE designs.design_contributors
+CREATE TABLE designs.design_contributor_revisions
     (
         design_id       util.BIGID NOT NULL
-                        REFERENCES designs.designs_core ( design_id )
-                            MATCH FULL
+                        REFERENCES designs.designs_core ( design_id ) MATCH FULL
                             ON DELETE CASCADE
                             ON UPDATE CASCADE,
         
         added           TIMESTAMP WITH TIME ZONE NOT NULL,
         added_by        util.BIGID NOT NULL
-                        REFERENCES users.user_core ( user_id )
-                            MATCH FULL
+                        REFERENCES users.user_core ( user_id ) MATCH FULL
                             ON DELETE CASCADE
                             ON UPDATE CASCADE,
         added_from      INET NOT NULL,
         
         removed         TIMESTAMP WITH TIME ZONE NULL,
         removed_by      util.BIGID NULL
-                        REFERENCES users.user_core ( user_id )
-                            MATCH FULL
+                        REFERENCES users.user_core ( user_id ) MATCH FULL
                             ON DELETE CASCADE
                             ON UPDATE CASCADE,
         removed_from    INET NULL,
-        removal_reason  TEXT NULL,
         
         person_id       util.BIGID NOT NULL
-                        REFERENCES people.people_core ( person_id )
-                            MATCH FULL
+                        REFERENCES people.people_core ( person_id ) MATCH FULL
                             ON DELETE CASCADE
                             ON UPDATE CASCADE,
         
+        UNIQUE ( design_id, person_id, added ),
         CONSTRAINT "All or no removal information must be given"
             CHECK (
-                ( removed IS NULL ) = ( removed_by IS NULL )
+                    ( removed IS NULL ) = ( removed_by   IS NULL )
                 AND ( removed IS NULL ) = ( removed_from IS NULL )
-                AND ( removed IS NULL ) = ( removal_reason IS NULL )
             )
     )
 ;
 
 
-CREATE UNIQUE INDEX ON designs.design_contributors (
+CREATE UNIQUE INDEX ON designs.design_contributor_revisions (
     design_id,
     person_id
 )
@@ -121,49 +115,44 @@ CREATE UNIQUE INDEX ON designs.design_contributors (
 ;
 
 
-CREATE TABLE designs.design_images
+CREATE TABLE designs.design_image_revisions
     (
         design_id       util.BIGID NOT NULL
-                        REFERENCES designs.designs_core ( design_id )
-                            MATCH FULL
+                        REFERENCES designs.designs_core ( design_id ) MATCH FULL
                             ON DELETE CASCADE
                             ON UPDATE CASCADE,
         
         added           TIMESTAMP WITH TIME ZONE NOT NULL,
         added_by        util.BIGID NOT NULL
-                        REFERENCES users.user_core ( user_id )
-                            MATCH FULL
+                        REFERENCES users.user_core ( user_id ) MATCH FULL
                             ON DELETE CASCADE
                             ON UPDATE CASCADE,
         added_from      INET NOT NULL,
         
         removed         TIMESTAMP WITH TIME ZONE NULL,
         removed_by      util.BIGID NULL
-                        REFERENCES users.user_core ( user_id )
-                            MATCH FULL
+                        REFERENCES users.user_core ( user_id ) MATCH FULL
                             ON DELETE CASCADE
                             ON UPDATE CASCADE,
         removed_from    INET NULL,
-        removal_reason  TEXT NULL,
         
         image_hash      util.raw_sha256 NOT NULL
-                        REFERENCES media.images ( image_hash )
-                            MATCH FULL
+                        REFERENCES media.images ( image_hash ) MATCH FULL
                             ON DELETE CASCADE
                             ON UPDATE CASCADE,
         weight          INT NOT NULL DEFAULT 0,
         
+        UNIQUE ( design_id, image_hash, added ),
         CONSTRAINT "All or no removal information must be given"
             CHECK (
-                ( removed IS NULL ) = ( removed_by IS NULL )
+                    ( removed IS NULL ) = ( removed_by   IS NULL )
                 AND ( removed IS NULL ) = ( removed_from IS NULL )
-                AND ( removed IS NULL ) = ( removal_reason IS NULL )
             )
     )
 ;
 
 
-CREATE UNIQUE INDEX ON designs.design_images (
+CREATE UNIQUE INDEX ON designs.design_image_revisions (
     design_id,
     image_hash
 )
@@ -171,7 +160,7 @@ CREATE UNIQUE INDEX ON designs.design_images (
 ;
 
 
-CREATE TABLE designs.related_designs
+CREATE TABLE designs.related_design_revisions
     (
         design_id_left  util.BIGID NOT NULL
                         REFERENCES designs.designs_core ( design_id ) MATCH FULL
@@ -182,16 +171,44 @@ CREATE TABLE designs.related_designs
                             ON DELETE CASCADE
                             ON UPDATE CASCADE,
         
+        added           TIMESTAMP WITH TIME ZONE NOT NULL,
+        added_by        util.BIGID NOT NULL
+                        REFERENCES users.user_core ( user_id ) MATCH FULL
+                            ON DELETE CASCADE
+                            ON UPDATE CASCADE,
+        added_from      INET NOT NULL,
+        
+        removed         TIMESTAMP WITH TIME ZONE NULL,
+        removed_by      util.BIGID NULL
+                        REFERENCES users.user_core ( user_id ) MATCH FULL
+                            ON DELETE CASCADE
+                            ON UPDATE CASCADE,
+        removed_from    INET NULL,
+        
         CONSTRAINT "Designs cannot be related to themselves"
-            CHECK ( design_id_left != design_id_right )
+            CHECK ( design_id_left != design_id_right ),
+        CONSTRAINT "All or no removal information must be given"
+            CHECK (
+                ( removed IS NULL ) = ( removed_by IS NULL )
+                AND ( removed IS NULL ) = ( removed_from IS NULL )
+            )
     )
 ;
 
 
-CREATE UNIQUE INDEX ON designs.related_designs (
+CREATE UNIQUE INDEX ON designs.related_design_revisions (
+    LEAST   ( design_id_left, design_id_right ),
+    GREATEST( design_id_left, design_id_right ),
+    added
+)
+;
+
+
+CREATE UNIQUE INDEX ON designs.related_design_revisions (
     LEAST   ( design_id_left, design_id_right ),
     GREATEST( design_id_left, design_id_right )
 )
+    WHERE removed IS NULL
 ;
 
 
@@ -213,14 +230,102 @@ CREATE VIEW designs.designs AS
 ;
 
 
-CREATE VIEW designs.designs_related_to AS
+CREATE VIEW designs.design_contributors AS
+    SELECT
+        dcr.design_id,
+        dcr.person_id,
+        FIRST(
+            /*
+            Only at most one `removed` can be NULL, which is the one we want;
+            otherwise chose the most recently added
+            */
+            dcr.added
+            ORDER BY
+                dcr.removed NULLS FIRST,
+                dcr.added DESC
+        ) AS added,
+        (
+            BOOL_OR(
+                   dd.design_id IS NOT NULL -- Any design deleted
+                OR pd.person_id IS NOT NULL -- Any person deleted
+            )
+            OR BOOL_AND( dcr.removed IS NOT NULL ) -- All relations removed
+        ) AS deleted
+    FROM
+        designs.design_contributor_revisions AS dcr
+        LEFT JOIN designs.design_deletions AS dd
+            ON dd.design_id = dcr.design_id
+        LEFT JOIN people.person_deletions AS pd
+            ON pd.person_id = dcr.person_id
+    GROUP BY ( dcr.design_id, dcr.person_id )
+;
+
+
+CREATE VIEW designs.design_images AS
+    SELECT
+        dir.design_id,
+        dir.image_hash,
+        FIRST(
+            /*
+            Only at most one `removed` can be NULL, which is the one we want;
+            otherwise chose the most recently added
+            */
+            dir.added
+            ORDER BY
+                dir.removed NULLS FIRST,
+                dir.added DESC
+        ) AS added,
+        FIRST(
+            /*
+            Only at most one `removed` can be NULL, which is the one we want;
+            otherwise chose the most recently added weight
+            */
+            dir.weight
+            ORDER BY
+                dir.removed NULLS FIRST,
+                dir.added DESC
+        ) AS weight,
+        (
+               BOOL_OR ( dd.design_id IS NOT NULL ) -- Any design is deleted
+            OR BOOL_AND( dir.removed  IS NOT NULL ) -- All relations removed
+        ) AS deleted
+    FROM
+        designs.design_image_revisions AS dir
+        LEFT JOIN designs.design_deletions AS dd
+            ON dd.design_id = dir.design_id
+    GROUP BY ( dir.design_id, dir.image_hash )
+;
+
+
+CREATE VIEW designs.related_designs AS
+    WITH latest AS (
+        SELECT
+            design_id_left,
+            design_id_right,
+            (
+                BOOL_OR (
+                       dd_left.design_id  IS NOT NULL -- Any design deleted
+                    OR dd_right.design_id IS NOT NULL -- Any design deleted
+                )
+                OR BOOL_AND( rdr.removed IS NOT NULL ) -- All relations removed
+            ) AS deleted
+        FROM
+            designs.related_design_revisions AS rdr
+            LEFT JOIN designs.design_deletions AS dd_left
+                ON dd_left.design_id = rdr.design_id_left
+            LEFT JOIN designs.design_deletions AS dd_right
+                ON dd_right.design_id = rdr.design_id_right
+        GROUP BY ( design_id_left, design_id_right )
+    )
     SELECT
         design_id_left  AS design_id,
-        design_id_right AS related_design_id
-    FROM designs.related_designs
+        design_id_right AS related_design_id,
+        deleted
+    FROM latest
     UNION ALL
         SELECT
             design_id_right AS design_id,
-            design_id_left  AS related_design_id
-        FROM designs.related_designs
+            design_id_left  AS related_design_id,
+            deleted
+        FROM latest
 ;
