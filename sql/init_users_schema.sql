@@ -61,7 +61,9 @@ CREATE TABLE users.user_core
         -- _an_email       INTEGER NOT NULL,
         _email_current  BOOLEAN NOT NULL -- possibly: check email current OR signup email?
                         CHECK( _email_current ),
-        password        users.password NOT NULL
+        password        users.password NOT NULL,
+        password_updated
+                        TIMESTAMP WITH TIME ZONE NOT NULL
     )
 ;
 
@@ -208,6 +210,7 @@ CREATE VIEW users.users AS
     SELECT
         uc.user_id,
         uc.password,
+        uc.password_updated,
         
         ur.created,
         ur.revised,
