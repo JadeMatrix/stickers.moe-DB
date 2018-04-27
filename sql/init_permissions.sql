@@ -3,7 +3,7 @@
 
 INSERT INTO permissions.permissions ( permission )
 VALUES
-    ( 'can_log_in'            ),
+    ( 'log_in'                ),
     
     ( 'create_user'           ),
     ( 'edit_any_user'         ),
@@ -11,7 +11,8 @@ VALUES
     ( 'delete_any_user'       ),
     ( 'delete_own_user'       ),
     
-    ( 'edit_public_pages' )
+    ( 'edit_public_pages'     ),
+    ( 'upload_files'          )
 ;
 
 
@@ -55,10 +56,11 @@ WITH
         SELECT permission_id
         FROM permissions.permissions
         WHERE permission IN (
-            'can_log_in',
+            'log_in',
             'edit_own_user',
             'delete_own_user',
-            'can_edit_public_pages'
+            'edit_public_pages',
+            'upload_files'
         )
     )
 INSERT INTO permissions.role_permissions
