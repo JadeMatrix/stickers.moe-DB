@@ -83,11 +83,7 @@ CREATE TABLE users.user_revisions
         
         display_name    TEXT NOT NULL,
         real_name       TEXT NULL,
-        avatar_hash     util.raw_sha256 NULL
-                        REFERENCES media.images ( image_hash )
-                            MATCH FULL
-                            ON DELETE CASCADE
-                            ON UPDATE CASCADE,
+        avatar_hash     util.raw_sha256 NULL,
         user_role_id    util.BIGID NOT NULL
                         REFERENCES permissions.roles ( role_id ) MATCH FULL
                             ON DELETE CASCADE

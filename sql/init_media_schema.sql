@@ -24,7 +24,14 @@ CREATE TYPE media.decency_rating_t AS
 CREATE TABLE media.images
     (
         image_hash          util.raw_sha256 PRIMARY KEY,
-        uploaded            TIMESTAMP WITH TIME ZONE NOT NULL,
-        decency             media.decency_rating_t NOT NULL
+        mime_type           TEXT NOT NULL,
+        decency             media.decency_rating_t NOT NULL,
+        
+        uploaded        TIMESTAMP WITH TIME ZONE NOT NULL,
+        uploaded_by     util.BIGID NOT NULL
+                        REFERENCES users.user_core ( user_id ) MATCH FULL
+                            ON DELETE CASCADE
+                            ON UPDATE CASCADE,
+        uploaded_from   INET NOT NULL
     )
 ;
