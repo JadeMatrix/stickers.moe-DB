@@ -26,6 +26,7 @@ CREATE TABLE media.images
         image_hash          util.raw_sha256 PRIMARY KEY,
         mime_type           TEXT NOT NULL,
         decency             media.decency_rating_t NOT NULL,
+        original_filename   TEXT NULL,
         
         uploaded        TIMESTAMP WITH TIME ZONE NOT NULL,
         uploaded_by     util.BIGID NOT NULL
