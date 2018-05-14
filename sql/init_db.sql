@@ -15,7 +15,6 @@ CREATE DATABASE stickers_moe
 BEGIN;
 
 
-CREATE EXTENSION pgcrypto CASCADE;
 CREATE EXTENSION first_last_agg CASCADE;
 
 
