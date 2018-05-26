@@ -92,3 +92,11 @@ CREATE DOMAIN util.machine_name AS TEXT
     CONSTRAINT "Machine names must be lowercase alphanumeric and underscores"
         CHECK ( VALUE ~ '^[a-z0-9_]+$' )
 ;
+
+
+-- SORTING ---------------------------------------------------------------------
+
+
+CREATE DOMAIN util.sorting_key AS BYTEA
+    CHECK ( OCTET_LENGTH( VALUE ) > 0 )
+;

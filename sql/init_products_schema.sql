@@ -160,7 +160,7 @@ CREATE TABLE products.product_images
                             MATCH FULL
                             ON DELETE CASCADE
                             ON UPDATE CASCADE,
-        weight          INT NOT NULL DEFAULT 0,
+        weight          util.sorting_key NOT NULL,
         
         CONSTRAINT "All or no removal information must be given"
             CHECK (

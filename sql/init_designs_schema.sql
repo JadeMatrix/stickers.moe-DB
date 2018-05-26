@@ -140,7 +140,7 @@ CREATE TABLE designs.design_image_revisions
                         REFERENCES media.images ( image_hash ) MATCH FULL
                             ON DELETE CASCADE
                             ON UPDATE CASCADE,
-        weight          INT NOT NULL DEFAULT 0,
+        weight          util.sorting_key NOT NULL,
         
         UNIQUE ( design_id, image_hash, added ),
         CONSTRAINT "All or no removal information must be given"
