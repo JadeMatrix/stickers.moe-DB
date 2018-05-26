@@ -15,7 +15,7 @@ CREATE TABLE permissions.permissions
                             'permissions.permissions',
                             'permission_id'
                         ),
-        permission      util.machine_name UNIQUE NOT NULL
+        permission      util.MACHINE_NAME UNIQUE NOT NULL
     )
 ;
 

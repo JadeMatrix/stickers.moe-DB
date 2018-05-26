@@ -155,12 +155,12 @@ CREATE TABLE products.product_images
         removed_from    INET NULL,
         removal_reason  TEXT NULL,
         
-        image_hash      util.raw_sha256 NOT NULL
+        image_hash      util.RAW_SHA256 NOT NULL
                         REFERENCES media.images ( image_hash )
                             MATCH FULL
                             ON DELETE CASCADE
                             ON UPDATE CASCADE,
-        weight          util.sorting_key NOT NULL,
+        weight          util.SORTING_KEY NOT NULL,
         
         CONSTRAINT "All or no removal information must be given"
             CHECK (

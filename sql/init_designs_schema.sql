@@ -136,11 +136,11 @@ CREATE TABLE designs.design_image_revisions
                             ON UPDATE CASCADE,
         removed_from    INET NULL,
         
-        image_hash      util.raw_sha256 NOT NULL
+        image_hash      util.RAW_SHA256 NOT NULL
                         REFERENCES media.images ( image_hash ) MATCH FULL
                             ON DELETE CASCADE
                             ON UPDATE CASCADE,
-        weight          util.sorting_key NOT NULL,
+        weight          util.SORTING_KEY NOT NULL,
         
         UNIQUE ( design_id, image_hash, added ),
         CONSTRAINT "All or no removal information must be given"

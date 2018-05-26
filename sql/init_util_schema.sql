@@ -54,22 +54,22 @@ CREATE OR REPLACE FUNCTION util.next_nonseq_id( tbl REGCLASS, col TEXT )
 -- RAW HASH FIELDS -------------------------------------------------------------
 
 
-CREATE DOMAIN util.raw_md5 AS BYTEA
+CREATE DOMAIN util.RAW_MD5 AS BYTEA
     CHECK ( OCTET_LENGTH( VALUE ) = 16 )
 ;
 
 
-CREATE DOMAIN util.raw_sha1 AS BYTEA
+CREATE DOMAIN util.RAW_SHA1 AS BYTEA
     CHECK ( OCTET_LENGTH( VALUE ) = 20 )
 ;
 
 
-CREATE DOMAIN util.raw_sha256 AS BYTEA
+CREATE DOMAIN util.RAW_SHA256 AS BYTEA
     CHECK ( OCTET_LENGTH( VALUE ) = 32 )
 ;
 
 
-CREATE DOMAIN util.raw_sha512 AS BYTEA
+CREATE DOMAIN util.RAW_SHA512 AS BYTEA
     CHECK ( OCTET_LENGTH( VALUE ) = 64 )
 ;
 
@@ -88,7 +88,7 @@ CREATE TYPE util.MONEY AS
 -- MACHINE-READABLE STRINGS ----------------------------------------------------
 
 
-CREATE DOMAIN util.machine_name AS TEXT
+CREATE DOMAIN util.MACHINE_NAME AS TEXT
     CONSTRAINT "Machine names must be lowercase alphanumeric and underscores"
         CHECK ( VALUE ~ '^[a-z0-9_]+$' )
 ;
@@ -97,6 +97,6 @@ CREATE DOMAIN util.machine_name AS TEXT
 -- SORTING ---------------------------------------------------------------------
 
 
-CREATE DOMAIN util.sorting_key AS BYTEA
+CREATE DOMAIN util.SORTING_KEY AS BYTEA
     CHECK ( OCTET_LENGTH( VALUE ) > 0 )
 ;

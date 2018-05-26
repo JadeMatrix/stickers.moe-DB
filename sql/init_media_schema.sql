@@ -9,7 +9,7 @@ CREATE SCHEMA media
 -- TYPES -----------------------------------------------------------------------
 
 
-CREATE TYPE media.decency_rating_t AS
+CREATE TYPE media.DECENCY_RATING AS
     ENUM (
         'safe',
         'questionable',
@@ -23,9 +23,9 @@ CREATE TYPE media.decency_rating_t AS
 
 CREATE TABLE media.images
     (
-        image_hash          util.raw_sha256 PRIMARY KEY,
+        image_hash          util.RAW_SHA256 PRIMARY KEY,
         mime_type           TEXT NOT NULL,
-        decency             media.decency_rating_t NOT NULL,
+        decency             media.DECENCY_RATING NOT NULL,
         original_filename   TEXT NULL,
         
         uploaded        TIMESTAMP WITH TIME ZONE NOT NULL,

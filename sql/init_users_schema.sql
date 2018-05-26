@@ -9,7 +9,7 @@ CREATE SCHEMA users
 -- TYPES -----------------------------------------------------------------------
 
 
-CREATE TYPE users._password_type_t AS
+CREATE TYPE users._PASSWORD_TYPE_T AS
     ENUM(
         'invalid',
         'scrypt'
@@ -17,33 +17,33 @@ CREATE TYPE users._password_type_t AS
 ;
 
 
-CREATE DOMAIN users.password_type_t AS
-    users._password_type_t NOT NULL
+CREATE DOMAIN users.PASSWORD_TYPE_T AS
+    users._PASSWORD_TYPE_T NOT NULL
 ;
 
 
-CREATE DOMAIN users.password_hash_t AS
+CREATE DOMAIN users.PASSWORD_HASH_T AS
     BYTEA NOT NULL
 ;
 
 
-CREATE DOMAIN users.password_salt_t AS
+CREATE DOMAIN users.PASSWORD_SALT_T AS
     BYTEA NOT NULL
 ;
 
 
-CREATE DOMAIN users.password_factor_t AS
+CREATE DOMAIN users.PASSWORD_FACTOR_T AS
     INT NOT NULL
     CHECK ( VALUE > 0 )
 ;
 
 
-CREATE TYPE users.password AS
+CREATE TYPE users.PASSWORD AS
     (
-        type            users.password_type_t,
-        hash            users.password_hash_t,
-        salt            users.password_salt_t,
-        factor          users.password_factor_t
+        type            users.PASSWORD_TYPE_T,
+        hash            users.PASSWORD_HASH_T,
+        salt            users.PASSWORD_SALT_T,
+        factor          users.PASSWORD_FACTOR_T
     )
 ;
 
@@ -61,7 +61,7 @@ CREATE TABLE users.user_core
         -- _an_email       INTEGER NOT NULL,
         _email_current  BOOLEAN NOT NULL -- possibly: check email current OR signup email?
                         CHECK( _email_current ),
-        password        users.password NOT NULL,
+        password        users.PASSWORD NOT NULL,
         password_updated
                         TIMESTAMP WITH TIME ZONE NOT NULL
     )
@@ -83,7 +83,7 @@ CREATE TABLE users.user_revisions
         
         display_name    TEXT NOT NULL,
         real_name       TEXT NULL,
-        avatar_hash     util.raw_sha256 NULL,
+        avatar_hash     util.RAW_SHA256 NULL,
         user_role_id    util.BIGID NOT NULL
                         REFERENCES permissions.roles ( role_id ) MATCH FULL
                             ON DELETE CASCADE
